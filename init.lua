@@ -1,87 +1,7 @@
 --[[
 
-=====================================================================
-==================== READ THIS BEFORE CONTINUING ====================
-=====================================================================
-========                                    .-----.          ========
-========         .----------------------.   | === |          ========
-========         |.-""""""""""""""""""-.|   |-----|          ========
-========         ||                    ||   | === |          ========
-========         ||   KICKSTART.NVIM   ||   |-----|          ========
-========         ||                    ||   | === |          ========
-========         ||                    ||   |-----|          ========
-========         ||:Tutor              ||   |:::::|          ========
-========         |'-..................-'|   |____o|          ========
-========         `"")----------------(""`   ___________      ========
-========        /::::::::::|  |::::::::::\  \ no mouse \     ========
-========       /:::========|  |==hjkl==:::\  \ required \    ========
-========      '""""""""""""'  '""""""""""""'  '""""""""""'   ========
-========                                                     ========
-=====================================================================
-=====================================================================
+Built on top of Kickstart.nvim
 
-What is Kickstart?
-
-  Kickstart.nvim is *not* a distribution.
-
-  Kickstart.nvim is a starting point for your own configuration.
-    The goal is that you can read every line of code, top-to-bottom, understand
-    what your configuration is doing, and modify it to suit your needs.
-
-    Once you've done that, you can start exploring, configuring and tinkering to
-    make Neovim your own! That might mean leaving Kickstart just the way it is for a while
-    or immediately breaking it into modular pieces. It's up to you!
-
-    If you don't know anything about Lua, I recommend taking some time to read through
-    a guide. One possible example which will only take 10-15 minutes:
-      - https://learnxinyminutes.com/docs/lua/
-
-    After understanding a bit more about Lua, you can use `:help lua-guide` as a
-    reference for how Neovim integrates Lua.
-    - :help lua-guide
-    - (or HTML version): https://neovim.io/doc/user/lua-guide.html
-
-Kickstart Guide:
-
-  TODO: The very first thing you should do is to run the command `:Tutor` in Neovim.
-
-    If you don't know what this means, type the following:
-      - <escape key>
-      - :
-      - Tutor
-      - <enter key>
-
-    (If you already know the Neovim basics, you can skip this step.)
-
-  Once you've completed that, you can continue working through **AND READING** the rest
-  of the kickstart init.lua.
-
-  Next, run AND READ `:help`.
-    This will open up a help window with some basic information
-    about reading, navigating and searching the builtin help documentation.
-
-    This should be the first place you go to look when you're stuck or confused
-    with something. It's one of my favorite Neovim features.
-
-    MOST IMPORTANTLY, we provide a keymap "<space>sh" to [s]earch the [h]elp documentation,
-    which is very useful when you're not exactly sure of what you're looking for.
-
-  I have left several `:help X` comments throughout the init.lua
-    These are hints about where to find more information about the relevant settings,
-    plugins or Neovim features used in Kickstart.
-
-   NOTE: Look for lines like this
-
-    Throughout the file. These are for you, the reader, to help you understand what is happening.
-    Feel free to delete them once you know what you're doing, but they should serve as a guide
-    for when you are first encountering a few different constructs in your Neovim config.
-
-If you experience any errors while trying to install kickstart, run `:checkhealth` for more info.
-
-I hope you enjoy your Neovim journey,
-- TJ
-
-P.S. You can delete this when you're done too. It's your config now! :)
 --]]
 
 -- Set <space> as the leader key
@@ -102,7 +22,7 @@ vim.g.have_nerd_font = false
 vim.o.number = true
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.o.relativenumber = true
+vim.o.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.o.mouse = 'a'
@@ -200,16 +120,21 @@ vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' }
 --  Use CTRL+<hjkl> to switch between windows
 --
 --  See `:help wincmd` for a list of all window commands
-vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
-vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
-vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
-vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
--- NOTE: Some terminals have colliding keymaps or are not able to send distinct keycodes
--- vim.keymap.set("n", "<C-S-h>", "<C-w>H", { desc = "Move window to the left" })
--- vim.keymap.set("n", "<C-S-l>", "<C-w>L", { desc = "Move window to the right" })
--- vim.keymap.set("n", "<C-S-j>", "<C-w>J", { desc = "Move window to the lower" })
--- vim.keymap.set("n", "<C-S-k>", "<C-w>K", { desc = "Move window to the upper" })
+-- Doom-like window movement
+-- vim.keymap.set('n', '<leader>wh', '<cmd>wincmd h<cr>', { desc = 'Move focus to the left window' })
+vim.keymap.set('n', '<leader>wh', '<C-w><C-h>', { desc = 'Move focus to the left window' })
+vim.keymap.set('n', '<leader>wl', '<C-w><C-l>', { desc = 'Move focus to the right window' })
+vim.keymap.set('n', '<leader>wj', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
+vim.keymap.set('n', '<leader>wk', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+vim.keymap.set('n', '<leader>wH', '<C-w>H', { desc = 'Move window to the left' })
+vim.keymap.set('n', '<leader>wL', '<C-w>L', { desc = 'Move window to the right' })
+vim.keymap.set('n', '<leader>wJ', '<C-w>J', { desc = 'Move window to the lower' })
+vim.keymap.set('n', '<leader>wK', '<C-w>K', { desc = 'Move window to the upper' })
+vim.keymap.set('n', '<leader>ws', '<C-w>s', { desc = 'Split window horizontally' })
+vim.keymap.set('n', '<leader>wv', '<C-w>v', { desc = 'Split window vertically' })
+vim.keymap.set('n', '<leader>wc', '<C-w>c', { desc = 'Close window' })
+vim.keymap.set('n', '<leader>wd', '<C-w>c', { desc = 'Close window' })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -223,6 +148,28 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   callback = function()
     vim.hl.on_yank()
   end,
+})
+
+-- [[ Extra (non-plugin) keymaps by fsimoes ]]
+
+-- Doom-like quitting
+vim.keymap.set('n', '<leader>qq', ':qa<CR>', { desc = '[Q]uit Neovim' })
+
+-- Open command line window / command history window
+vim.keymap.set('n', '<leader>Hc', 'q:', { desc = 'Open [C]ommand [H]istory window (Ex commands)' })
+vim.keymap.set('n', '<M-.>', 'q:', { desc = 'Open [C]ommand [H]istory window (Ex commands)' })
+vim.keymap.set('n', '<leader>H/', 'q/', { desc = 'Open [S]earch [H]istory window' })
+
+-- Save file
+vim.keymap.set('n', '<leader>fs', '<cmd>w<CR>', { desc = '[S]ave current [F]ile' })
+
+-- Define the Telescope Project Picker keymap
+vim.keymap.set('n', '<leader>pp', function()
+  require('telescope').extensions.project.project {}
+end, {
+  noremap = true,
+  silent = true,
+  desc = 'Open project',
 })
 
 -- [[ Install `lazy.nvim` plugin manager ]]
@@ -354,6 +301,10 @@ require('lazy').setup({
         { '<leader>t', group = '[T]oggle' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
         { '<leader>c', group = '[C]ode operations (LSP)' },
+        { '<leader>H', group = '[H]istory' },
+        { '<leader>g', group = 'Neo[G]it' },
+        { '<leader>w', group = '[W]indow' },
+        { '<leader>f', group = '[F]iles' },
       },
     },
   },
@@ -410,19 +361,68 @@ require('lazy').setup({
 
       -- [[ Configure Telescope ]]
       -- See `:help telescope` and `:help telescope.setup()`
+      local project_actions = require 'telescope._extensions.project.actions'
       require('telescope').setup {
         -- You can put your default mappings / updates / etc. in here
         --  All the info you're looking for is in `:help telescope.setup()`
         --
-        -- defaults = {
-        --   mappings = {
-        --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
-        --   },
-        -- },
+        defaults = {
+          mappings = {
+            i = { ['<C-h>'] = 'which_key' },
+            n = { ['<C-h>'] = 'which_key', ['?'] = 'which_key' },
+          },
+        },
         -- pickers = {}
+
+        -- telescope-project config
         extensions = {
           ['ui-select'] = {
             require('telescope.themes').get_dropdown(),
+          },
+          project = {
+            base_dirs = {
+              { path = '~/Documents', max_depth = 10 }, -- searches here for projects
+              { path = '~/.config', max_depth = 5 }, -- searches here for projects
+            },
+            ignore_missing_dirs = true, -- default: false
+            hidden_files = true, -- default: false
+            theme = 'dropdown',
+            hide_workspace = true, -- not useful info for me
+            order_by = 'asc',
+            search_by = 'title',
+            -- sync_with_nvim_tree = true, -- default false
+            -- default for on_project_selected = find project files
+            -- on_project_selected = function(prompt_bufnr)
+            -- Do anything you want in here. For example:
+            -- project_actions.change_working_directory(prompt_bufnr, false)
+            -- require('harpoon.ui').nav_file(1)
+            -- end,
+            mappings = {
+              n = {
+                ['d'] = project_actions.delete_project,
+                ['r'] = project_actions.rename_project,
+                ['c'] = project_actions.add_project,
+                ['C'] = project_actions.add_project_cwd,
+                ['f'] = project_actions.find_project_files,
+                ['b'] = project_actions.browse_project_files,
+                ['s'] = project_actions.search_in_project_files,
+                ['R'] = project_actions.recent_project_files,
+                ['w'] = project_actions.change_working_directory,
+                ['o'] = project_actions.next_cd_scope,
+              },
+              i = {
+                ['<c-d>'] = project_actions.delete_project,
+                ['<c-v>'] = project_actions.rename_project,
+                ['<c-a>'] = project_actions.add_project,
+                ['<c-A>'] = project_actions.add_project_cwd,
+                ['<c-f>'] = project_actions.find_project_files,
+                ['<c-b>'] = project_actions.browse_project_files,
+                ['<c-s>'] = project_actions.search_in_project_files,
+                ['<c-r>'] = project_actions.recent_project_files,
+                ['<c-l>'] = project_actions.change_working_directory,
+                ['<c-o>'] = project_actions.next_cd_scope,
+              },
+            },
           },
         },
       }
@@ -435,14 +435,33 @@ require('lazy').setup({
       local builtin = require 'telescope.builtin'
       vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
       vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
-      vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles' })
+      vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles in cwd' })
+      vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = '[F]ind [F]iles in cwd' })
+      vim.keymap.set('n', '<leader>f.', function()
+        -- vim.fn.expand('%:h') expands the Vim/Neovim variable '%:h' (current file's directory)
+        require('telescope.builtin').find_files {
+          cwd = vim.fn.expand '%:h',
+        }
+      end, {
+        desc = "Find files in current buffer's directory",
+      })
+      vim.keymap.set('n', '<leader>.', function()
+        -- vim.fn.expand('%:h') expands the Vim/Neovim variable '%:h' (current file's directory)
+        require('telescope.builtin').find_files {
+          cwd = vim.fn.expand '%:h',
+        }
+      end, {
+        desc = "Find files in current buffer's directory",
+      })
       vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
       vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
       vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
       vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
-      vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
-      vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
+      -- vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
+      vim.keymap.set('n', '<leader>fr', builtin.oldfiles, { desc = 'Search [R]ecent [F]iles ("." for repeat)' })
+      vim.keymap.set('n', '<leader>bb', builtin.buffers, { desc = 'Search existing [B]uffers' })
+      vim.keymap.set('n', '<leader>sb', builtin.buffers, { desc = '[S]earch existing [B]uffers' })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
@@ -759,7 +778,7 @@ require('lazy').setup({
     cmd = { 'ConformInfo' },
     keys = {
       {
-        '<leader>f',
+        '<leader>cf',
         function()
           require('conform').format { async = true, lsp_format = 'fallback' }
         end,
@@ -1002,11 +1021,7 @@ require('lazy').setup({
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
   { import = 'custom.plugins' },
-  --
   -- For additional information with loading, sourcing and examples see `:help lazy.nvim-🔌-plugin-spec`
-  -- Or use telescope!
-  -- In normal mode type `<space>sh` then write `lazy.nvim-plugin`
-  -- you can continue same window with `<space>sr` which resumes last telescope search
 }, {
   ui = {
     -- If you are using a Nerd Font: set icons to an empty table which will use the
