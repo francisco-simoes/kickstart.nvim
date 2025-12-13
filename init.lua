@@ -982,6 +982,22 @@ require('lazy').setup({
       -- - sr)'  - [S]urround [R]eplace [)] [']
       require('mini.surround').setup()
 
+      require('mini.surround').setup {
+        mappings = {
+          add = 'ys',
+          delete = 'ds',
+          find = '',
+          find_left = '',
+          highlight = '',
+          replace = 'cs',
+
+          -- Add this only if you don't want to use extended mappings
+          -- suffix_last = '',
+          -- suffix_next = '',
+        },
+        search_method = 'cover_or_next',
+      }
+
       -- Simple and easy statusline.
       --  You could remove this setup call if you don't like it,
       --  and try some other statusline plugin
