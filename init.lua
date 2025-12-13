@@ -129,12 +129,8 @@ vim.keymap.set('n', '<leader>wj', '<C-w><C-j>', { desc = 'Move focus to the lowe
 vim.keymap.set('n', '<leader>wk', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 vim.keymap.set('n', '<leader>wH', '<C-w>H', { desc = 'Move window to the left' })
 vim.keymap.set('n', '<leader>wL', '<C-w>L', { desc = 'Move window to the right' })
-vim.keymap.set('n', '<leader>wJ', '<C-w>J', { desc = 'Move window to the lower' })
-vim.keymap.set('n', '<leader>wK', '<C-w>K', { desc = 'Move window to the upper' })
-vim.keymap.set('n', '<leader>ws', '<C-w>s', { desc = 'Split window horizontally' })
-vim.keymap.set('n', '<leader>wv', '<C-w>v', { desc = 'Split window vertically' })
-vim.keymap.set('n', '<leader>wc', '<C-w>c', { desc = 'Close window' })
-vim.keymap.set('n', '<leader>wd', '<C-w>c', { desc = 'Close window' })
+vim.keymap.set('n', '<leader>wJ', '<C-w>J', { desc = 'Move window to down' })
+vim.keymap.set('n', '<leader>wK', '<C-w>K', { desc = 'Move window to up' })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -155,6 +151,33 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 -- Doom-like quitting
 vim.keymap.set('n', '<leader>qq', ':qa<CR>', { desc = '[Q]uit Neovim' })
 
+-- Doom-like window management
+vim.keymap.set('n', '<leader>ws', '<C-w>s', { desc = 'Split window horizontally' })
+vim.keymap.set('n', '<leader>wv', '<C-w>v', { desc = 'Split window vertically' })
+vim.keymap.set('n', '<leader>wc', '<C-w>c', { desc = 'Close window' })
+vim.keymap.set('n', '<leader>wd', '<C-w>c', { desc = 'Close window' })
+vim.keymap.set('n', '<leader>wmm', '<C-w><C-O>', { desc = 'Maximize window' })
+-- TODO: Maximize horizontally and vertically
+vim.keymap.set('n', '<leader>w-', '<C-w>-', { desc = 'Decrease current window height by pre-fixed N (default 1)' })
+vim.keymap.set('n', '<leader>w+', '<C-w>+', { desc = 'Increase current window height by pre-fixed N (default 1)' })
+vim.keymap.set('n', '<leader>w<', '<C-w><', { desc = 'Decrease current window width by pre-fixed N (default 1)' })
+vim.keymap.set('n', '<leader>w>', '<C-w>>', { desc = 'Increase current window width by pre-fixed N (default 1)' })
+
+-- Doom-like buffer management
+vim.keymap.set('n', '<leader>bk', function()
+  -- Switch to the previous buffer (alternate buffer)
+  -- The | separates commands
+  -- bd# deletes the alternate buffer (which was the current one)
+  vim.cmd 'bnext | bdelete #'
+end, { noremap = true, silent = true, desc = '[K]ill current [B]uffer' })
+
+vim.keymap.set('n', '<leader>b]', '<cmd>bnext<CR>', { desc = 'Next buffer' })
+vim.keymap.set('n', '<leader>b[', '<cmd>bprevious<CR>', { desc = 'Previous buffer' })
+
+-- Emacs-like (Lua) code execution from buffer
+vim.keymap.set('v', '<leader>cl', "<cmd>'<,'>lua<CR>", { desc = 'Run selection as Lua code' }) -- TODO: not working!
+-- print 'ok' -- to test lua code selection run
+
 -- Open command line window / command history window
 vim.keymap.set('n', '<leader>Hc', 'q:', { desc = 'Open [C]ommand [H]istory window (Ex commands)' })
 vim.keymap.set('n', '<M-.>', 'q:', { desc = 'Open [C]ommand [H]istory window (Ex commands)' })
@@ -162,6 +185,10 @@ vim.keymap.set('n', '<leader>H/', 'q/', { desc = 'Open [S]earch [H]istory window
 
 -- Save file
 vim.keymap.set('n', '<leader>fs', '<cmd>w<CR>', { desc = '[S]ave current [F]ile' })
+
+-- Yank entire buffer
+-- vim.keymap.set('n', 'yig', ':%y<CR>', { silent = true, desc = 'yank current buffer' })
+-- TODO: The above does not work. Need to make entire buffer into a textobj
 
 -- Define the Telescope Project Picker keymap
 vim.keymap.set('n', '<leader>pp', function()
@@ -300,7 +327,7 @@ require('lazy').setup({
         { '<leader>s', group = '[S]earch' },
         { '<leader>t', group = '[T]oggle' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
-        { '<leader>c', group = '[C]ode operations (LSP)' },
+        { '<leader>c', group = '[C]ode operations' },
         { '<leader>H', group = '[H]istory' },
         { '<leader>g', group = 'Neo[G]it' },
         { '<leader>w', group = '[W]indow' },
@@ -1043,6 +1070,10 @@ require('lazy').setup({
     },
   },
 })
+
+-- [[ Extra keybindings (post-plugin loading) by fsimoes ]]
+-- Doom-like Oil keymap
+vim.keymap.set('n', '<leader>o-', '<cmd>Oil<CR>', { desc = 'Open Oil (file manager)' })
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et

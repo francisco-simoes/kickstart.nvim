@@ -1,5 +1,8 @@
+- Surround plugin
 - open pdfs with zathura.
 - file manager with similar capabilities to dired (maybe oil?)
 - completion in command line without using arrows.
 - session management like doom
 - t ab management like doom
+- yig to yank inside entire file
+- <C-j> and <C-k> to navigate inside telescope instead of tab
