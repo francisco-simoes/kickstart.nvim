@@ -186,9 +186,8 @@ vim.keymap.set('n', '<leader>H/', 'q/', { desc = 'Open [S]earch [H]istory window
 -- Save file
 vim.keymap.set('n', '<leader>fs', '<cmd>w<CR>', { desc = '[S]ave current [F]ile' })
 
--- Yank entire buffer
--- vim.keymap.set('n', 'yig', ':%y<CR>', { silent = true, desc = 'yank current buffer' })
--- TODO: The above does not work. Need to make entire buffer into a textobj
+-- Visual selection of previously pasted text
+vim.keymap.set('n', 'gp', '`[v`]', { desc = 'Select pasted text' })
 
 -- Define the Telescope Project Picker keymap
 vim.keymap.set('n', '<leader>pp', function()
@@ -399,7 +398,10 @@ require('lazy').setup({
             n = { ['<C-h>'] = 'which_key', ['?'] = 'which_key' },
           },
         },
-        -- pickers = {}
+
+        pickers = { -- Can change defaults for some of the pickers
+          find_files = { hidden = true },
+        },
 
         -- telescope-project config
         extensions = {
@@ -462,24 +464,30 @@ require('lazy').setup({
       local builtin = require 'telescope.builtin'
       vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
       vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
-      vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles in cwd' })
-      vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = '[F]ind [F]iles in cwd' })
-      vim.keymap.set('n', '<leader>f.', function()
-        -- vim.fn.expand('%:h') expands the Vim/Neovim variable '%:h' (current file's directory)
+
+      for _, key_sequence in ipairs { '<leader>sf', '<leader>ff' } do
+        vim.keymap.set('n', key_sequence, builtin.find_files, { desc = '[S]earch [F]iles in cwd' })
+      end
+
+      vim.keymap.set('n', '<leader>fh', function()
         require('telescope.builtin').find_files {
-          cwd = vim.fn.expand '%:h',
+          cwd = '$HOME',
         }
       end, {
-        desc = "Find files in current buffer's directory",
+        desc = 'Search Files in the home directory',
       })
-      vim.keymap.set('n', '<leader>.', function()
-        -- vim.fn.expand('%:h') expands the Vim/Neovim variable '%:h' (current file's directory)
-        require('telescope.builtin').find_files {
-          cwd = vim.fn.expand '%:h',
-        }
-      end, {
-        desc = "Find files in current buffer's directory",
-      })
+
+      for _, key_sequence in ipairs { '<leader>f.', '<leader>.' } do
+        vim.keymap.set('n', key_sequence, function()
+          -- vim.fn.expand('%:h') expands the Vim/Neovim variable '%:h' (current file's directory)
+          require('telescope.builtin').find_files {
+            cwd = vim.fn.expand '%:h',
+          }
+        end, {
+          desc = "Find files in current buffer's directory",
+        })
+      end
+
       vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
       vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
       vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
@@ -973,22 +981,48 @@ require('lazy').setup({
       --  - va)  - [V]isually select [A]round [)]paren
       --  - yinq - [Y]ank [I]nside [N]ext [Q]uote
       --  - ci'  - [C]hange [I]nside [']quote
-      require('mini.ai').setup { n_lines = 500 }
+      require('mini.ai').setup {
+        custom_textobjects = {
+          -- $ as delimiter
+          ['$'] = require('mini.ai').gen_spec.pair('$', '$', { type = 'greedy' }),
+          -- Whole buffer
+          g = function()
+            local from = { line = 1, col = 1 }
+            local to = {
+              line = vim.fn.line '$',
+              col = math.max(vim.fn.getline('$'):len(), 1),
+            }
+            return { from = from, to = to }
+          end,
+        },
+        n_lines = 500,
+      }
 
       -- Add/delete/replace surroundings (brackets, quotes, etc.)
-      --
-      -- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
-      -- - sd'   - [S]urround [D]elete [']quotes
-      -- - sr)'  - [S]urround [R]eplace [)] [']
-      require('mini.surround').setup()
-
       require('mini.surround').setup {
-        mappings = {
-          add = 'ys',
+        -- Duration (in ms) of highlight when calling `MiniSurround.highlight()`
+        highlight_duration = 500,
+
+        -- Module mappings. Use `''` (empty string) to disable one.
+        -- mappings = { -- Defaults
+        --   add = 'sa', -- Add surrounding in Normal and Visual modes
+        --   delete = 'sd', -- Delete surrounding
+        --   find = 'sf', -- Find surrounding (to the right)
+        --   find_left = 'sF', -- Find surrounding (to the left)
+        --   highlight = 'sh', -- Highlight surrounding
+        --   replace = 'sr', -- Replace surrounding
+        --
+        --   suffix_last = 'l', -- Suffix to search with "prev" method
+        --   suffix_next = 'n', -- Suffix to search with "next" method
+        -- },
+
+        -- Uncomment this paragraph to it Doom-like (and tpope/surround-like)
+        mappings = { -- TODO: Make <leader>Sa etc also work, so that all surround functionality from mini.surround can be accessed through <leader>S
+          add = 'S', -- Add surrounding in Normal and Visual modes
           delete = 'ds',
           find = '',
           find_left = '',
-          highlight = '',
+          highlight = '<leader>sH',
           replace = 'cs',
 
           -- Add this only if you don't want to use extended mappings
@@ -996,7 +1030,12 @@ require('lazy').setup({
           -- suffix_next = '',
         },
         search_method = 'cover_or_next',
+
+        -- Number of lines within which surrounding is searched
+        n_lines = 40,
       }
+
+      -- require('mini.animate').setup()
 
       require('mini.sessions').setup {
         -- Whether to read default session if Neovim opened without file arguments
@@ -1133,6 +1172,9 @@ end, { desc = 'Load session' })
 vim.keymap.set('n', '<leader>qw', function()
   MiniSessions.write(nil)
 end, { desc = 'Update current session' })
+
+-- Colorscheme picker
+vim.keymap.set('n', '<leader>sC', '<cmd>Telescope colorscheme<CR>', { desc = 'Search and choose colorscheme' })
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et

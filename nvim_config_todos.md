@@ -1,10 +1,19 @@
-- autocomplete - tab to select
-- gp to select last pasted text
-- <C-p> and <C-n> to change pasted text
-- Surround plugin
-- open pdfs with zathura.
-- completion in command line without using arrows.
-- session management like doom
-- t ab management like doom
-- yig to yank inside entire file
-- <C-j> and <C-k> to navigate inside telescope instead of tab
+- [ ] autocomplete - tab to select
+- [X] gp to select last pasted text
+- [ ] <C-p> and <C-n> to change pasted text
+- [X] Surround plugin
+- [ ] open pdfs with zathura.
+- [ ] completion in command line without using arrows.
+- [X] session management like doom
+- [ ] tab management like doom
+- [X] yig to yank inside entire file
+- [ ] <C-j> and <C-k> to navigate inside telescope instead of tab
+- [ ] which-key seing mini.ai textobjects like here: https://www.reddit.com/r/neovim/comments/1cx91gu/whichkey_and_miniai_custom_textobjects/
+- [ ] Alt-. after . for older command(s)
+- [X] $ as delimiter
+- [X] search files must include hidden files
+- [X] flash plugin
+- [ ] multicursor
+- [ ] session making keymap
+- [ ] Make neogit open in current buffer's directory instead of cwd
+
