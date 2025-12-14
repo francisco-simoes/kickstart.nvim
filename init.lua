@@ -998,6 +998,35 @@ require('lazy').setup({
         search_method = 'cover_or_next',
       }
 
+      require('mini.sessions').setup {
+        -- Whether to read default session if Neovim opened without file arguments
+        autoread = false,
+
+        -- Whether to write currently read session before leaving it
+        autowrite = true,
+
+        -- Directory where global sessions are stored (use `''` to disable)
+        directory = '~/.nvim_sessions/',
+
+        -- File for local session (use `''` to disable)
+        file = 'Session.vim',
+
+        -- Whether to force possibly harmful actions (meaning depends on function)
+        force = { read = false, write = false, delete = false },
+
+        -- Hook functions for actions. Default `nil` means 'do nothing'.
+        -- Takes table with active session data as argument.
+        hooks = {
+          -- Before successful action
+          pre = { read = nil, write = nil, delete = nil },
+          -- After successful action
+          post = { read = nil, write = nil, delete = nil },
+        },
+
+        -- Whether to print session path after action
+        verbose = { read = false, write = true, delete = true },
+      } -- replace {} with your config table
+
       -- Simple and easy statusline.
       --  You could remove this setup call if you don't like it,
       --  and try some other statusline plugin
@@ -1017,6 +1046,7 @@ require('lazy').setup({
       --  Check out: https://github.com/echasnovski/mini.nvim
     end,
   },
+  --
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
@@ -1090,6 +1120,19 @@ require('lazy').setup({
 -- [[ Extra keybindings (post-plugin loading) by fsimoes ]]
 -- Doom-like Oil keymap
 vim.keymap.set('n', '<leader>o-', '<cmd>Oil<CR>', { desc = 'Open Oil (file manager)' })
+
+-- Doom-like session management
+vim.keymap.set('n', '<leader>ql', function()
+  vim.ui.input({ prompt = 'Session name: ' }, function(name)
+    if name and name ~= '' then
+      MiniSessions.read(name)
+    end
+  end)
+end, { desc = 'Load session' })
+-- TODO: make this use telescope or some nice completion...
+vim.keymap.set('n', '<leader>qw', function()
+  MiniSessions.write(nil)
+end, { desc = 'Update current session' })
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et

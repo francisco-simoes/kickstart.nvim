@@ -1,3 +1,4 @@
+- autocomplete - tab to select
 - gp to select last pasted text
 - <C-p> and <C-n> to change pasted text
 - Surround plugin
