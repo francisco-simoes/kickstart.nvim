@@ -147,6 +147,17 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 })
 
 -- [[ Extra options and (non-plugin) keymaps by fsimoes ]]
+if vim.g.neovide == true then
+  vim.api.nvim_set_keymap('n', '<C-=>', ':lua vim.g.neovide_scale_factor = math.min(vim.g.neovide_scale_factor + 0.1,  1.0)<CR>', { silent = true })
+  vim.api.nvim_set_keymap('n', '<C-->', ':lua vim.g.neovide_scale_factor = math.max(vim.g.neovide_scale_factor - 0.1,  0.1)<CR>', { silent = true })
+  vim.api.nvim_set_keymap('n', '<C-+>', ':lua vim.g.neovide_transparency = math.min(vim.g.neovide_transparency + 0.05, 1.0)<CR>', { silent = true })
+  vim.api.nvim_set_keymap('n', '<C-_>', ':lua vim.g.neovide_transparency = math.max(vim.g.neovide_transparency - 0.05, 0.0)<CR>', { silent = true })
+  vim.api.nvim_set_keymap('n', '<C-0>', ':lua vim.g.neovide_scale_factor = 0.5<CR>', { silent = true })
+  vim.api.nvim_set_keymap('n', '<C-)>', ':lua vim.g.neovide_transparency = 0.9<CR>', { silent = true })
+end
+
+-- pynvim provider in venv
+-- vim.g.python3_host_prog = vim.fn.expand '~/.virtualenvs/pynvim/bin/python' -- only needed if using UltiSnips
 
 -- 2 space tabs in tex files
 vim.api.nvim_create_autocmd('FileType', {
@@ -245,7 +256,7 @@ rtp:prepend(lazypath)
 --    :Lazy update
 --
 -- NOTE: Here is where you install your plugins.
-require('lazy').setup({
+require('lazy').setup {
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'NMAC427/guess-indent.nvim', -- Detect tabstop and shiftwidth automatically
 
@@ -354,7 +365,7 @@ require('lazy').setup({
         { '<leader>f', group = '[F]iles' },
       },
     },
-  },
+  }, -- END of whick-key
 
   -- NOTE: Plugins can specify dependencies.
   --
@@ -542,7 +553,7 @@ require('lazy').setup({
         builtin.find_files { cwd = vim.fn.stdpath 'config' }
       end, { desc = '[S]earch [N]eovim files' })
     end,
-  },
+  }, -- END of fuzzy finder
 
   -- LSP Plugins
   {
@@ -575,31 +586,6 @@ require('lazy').setup({
       'saghen/blink.cmp',
     },
     config = function()
-      -- Brief aside: **What is LSP?**
-      --
-      -- LSP is an initialism you've probably heard, but might not understand what it is.
-      --
-      -- LSP stands for Language Server Protocol. It's a protocol that helps editors
-      -- and language tooling communicate in a standardized fashion.
-      --
-      -- In general, you have a "server" which is some tool built to understand a particular
-      -- language (such as `gopls`, `lua_ls`, `rust_analyzer`, etc.). These Language Servers
-      -- (sometimes called LSP servers, but that's kind of like ATM Machine) are standalone
-      -- processes that communicate with some "client" - in this case, Neovim!
-      --
-      -- LSP provides Neovim with features like:
-      --  - Go to definition
-      --  - Find references
-      --  - Autocompletion
-      --  - Symbol Search
-      --  - and more!
-      --
-      -- Thus, Language Servers are external tools that must be installed separately from
-      -- Neovim. This is where `mason` and related plugins come into play.
-      --
-      -- If you're wondering about lsp vs treesitter, you can check out the wonderfully
-      -- and elegantly composed help section, `:help lsp-vs-treesitter`
-
       --  This function gets run when an LSP attaches to a particular buffer.
       --    That is to say, every time a new file is opened that is associated with
       --    an lsp (for example, opening `main.rs` is associated with `rust_analyzer`) this
@@ -826,7 +812,7 @@ require('lazy').setup({
         },
       }
     end,
-  },
+  }, -- END of lspconfig
 
   { -- Autoformat
     'stevearc/conform.nvim',
@@ -878,6 +864,10 @@ require('lazy').setup({
       {
         'L3MON4D3/LuaSnip',
         version = '2.*',
+        config = function()
+          require('luasnip.loaders.from_lua').lazy_load { paths = vim.fn.stdpath 'config' .. '/lua/custom/plugins/luasnip' }
+          require('luasnip').setup { enable_autosnippets = true }
+        end,
         build = (function()
           -- Build Step is needed for regex support in snippets.
           -- This step is not supported in many windows environments.
@@ -894,12 +884,12 @@ require('lazy').setup({
           -- {
           --   'rafamadriz/friendly-snippets',
           --   config = function()
-          --     require('luasnip.loaders.from_vscode').lazy_load()
+          --     require('luasnip.loaders.from_vscode').lazy_load { exclude = { 'javascript' } }
           --   end,
           -- },
         },
         opts = {},
-      },
+      }, -- END of luasnip
       'folke/lazydev.nvim',
     },
     --- @module 'blink.cmp'
@@ -907,19 +897,6 @@ require('lazy').setup({
     opts = {
       keymap = {
         -- 'default' (recommended) for mappings similar to built-in completions
-        --   <c-y> to accept ([y]es) the completion.
-        --    This will auto-import if your LSP supports it.
-        --    This will expand snippets if the LSP sent a snippet.
-        -- 'super-tab' for tab to accept
-        -- 'enter' for enter to accept
-        -- 'none' for no mappings
-        --
-        -- For an understanding of why the 'default' preset is recommended,
-        -- you will need to read `:help ins-completion`
-        --
-        -- No, but seriously. Please read `:help ins-completion`, it is really good!
-        --
-        -- All presets have the following mappings:
         -- <tab>/<s-tab>: move to right/left of your snippet expansion
         -- <c-space>: Open menu or open docs if already open
         -- <c-n>/<c-p> or <up>/<down>: Select next/previous item
@@ -927,7 +904,10 @@ require('lazy').setup({
         -- <c-k>: Toggle signature help
         --
         -- See :h blink-cmp-config-keymap for defining your own keymap
-        preset = 'default',
+        preset = 'default', -- default presets, including <C-y> to accept
+        -- preset = 'super-tab',
+        ['<C-l>'] = { 'snippet_forward', 'fallback' },
+        ['<C-h>'] = { 'snippet_backward', 'fallback' },
 
         -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
         --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
@@ -966,7 +946,7 @@ require('lazy').setup({
       -- Shows a signature help window while you type arguments for a function
       signature = { enabled = true },
     },
-  },
+  }, -- END of blink
 
   { -- You can easily change to a different colorscheme.
     -- Change the name of the colorscheme plugin below, and then
@@ -1105,7 +1085,7 @@ require('lazy').setup({
       -- ... and there is more!
       --  Check out: https://github.com/echasnovski/mini.nvim
     end,
-  },
+  }, -- END of mini.nvim
   --
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
@@ -1155,7 +1135,9 @@ require('lazy').setup({
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
   { import = 'custom.plugins' },
   -- For additional information with loading, sourcing and examples see `:help lazy.nvim-🔌-plugin-spec`
-}, {
+
+  -- [[ END of plugins ]]
+
   ui = {
     -- If you are using a Nerd Font: set icons to an empty table which will use the
     -- default lazy.nvim defined Nerd Font icons, otherwise define a unicode icons table
@@ -1175,7 +1157,7 @@ require('lazy').setup({
       lazy = '💤 ',
     },
   },
-})
+} -- END of lazy setup()
 
 -- [[ Extra keybindings (post-plugin loading) by fsimoes ]]
 -- Doom-like Oil keymap
@@ -1193,6 +1175,24 @@ end, { desc = 'Load session' })
 vim.keymap.set('n', '<leader>qw', function()
   MiniSessions.write(nil)
 end, { desc = 'Update current session' })
+
+-- Keybinding for luasnip
+-- local ls = require 'luasnip'
+-- vim.keymap.set({ 'i' }, '<C-K>', function()
+--   ls.expand()
+-- end, { silent = true })
+-- vim.keymap.set({ 'i', 's' }, '<C-L>', function()
+--   ls.jump(1)
+-- end, { silent = true })
+-- vim.keymap.set({ 'i', 's' }, '<C-J>', function()
+--   ls.jump(-1)
+-- end, { silent = true })
+--
+-- vim.keymap.set({ 'i', 's' }, '<C-M>', function()
+--   if ls.choice_active() then
+--     ls.change_choice(1)
+--   end
+-- end, { silent = true })
 
 -- Colorscheme picker
 vim.keymap.set('n', '<leader>sC', '<cmd>Telescope colorscheme<CR>', { desc = 'Search and choose colorscheme' })

@@ -1,0 +1,9 @@
+return {
+  'SirVer/ultisnips',
+  enable = false,
+  -- cond = has_py3,  -- no rplugin, but need to check python version
+  event = { 'InsertEnter', 'CmdlineEnter' },
+  -- let g:UltiSnipsExpandTrigger="<tab>"
+  -- let g:UltiSnipsJumpForwardTrigger="<c-b>"
+  -- let g:UltiSnipsJumpBackwardTrigger="<c-z>"
+}

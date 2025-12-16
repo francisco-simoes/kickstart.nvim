@@ -1,5 +1,6 @@
 - [ ] make latex work fine
-- [ ] snippets for latex from https://github.com/honza/vim-snippets/blob/master/snippets/tex.snippets
+- [X] snippets for latex from https://github.com/honza/vim-snippets/blob/master/snippets/tex.snippets
+- [ ] or Lua Snip for snippets?!! used in kickstart! If I change: remember to uninstall pynvim and remove its path from init.lua
 - [ ] autocomplete like ipdb<tab> in python - with Ultisnips?!
 - [ ] autocomplete - tab to select
 - [X] gp to select last pasted text
