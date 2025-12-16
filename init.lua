@@ -146,7 +146,27 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
--- [[ Extra (non-plugin) keymaps by fsimoes ]]
+-- [[ Extra options and (non-plugin) keymaps by fsimoes ]]
+
+-- 2 space tabs in tex files
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = 'tex',
+  callback = function()
+    vim.opt_local.tabstop = 2 -- visual width of tab
+    vim.opt_local.shiftwidth = 2 -- indentation size of >>
+    vim.opt_local.softtabstop = 2 -- number of spaces inserted
+    vim.opt_local.expandtab = true -- use spaces instead of tab characters
+  end,
+})
+
+-- Automatically activate spell check in certain filetypes
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = { 'tex', 'markdown', 'org' },
+  callback = function()
+    vim.opt_local.spell = true
+    vim.opt_local.spelllang = { 'en_us' }
+  end,
+})
 
 -- Doom-like quitting
 vim.keymap.set('n', '<leader>qq', ':qa<CR>', { desc = '[Q]uit Neovim' })
@@ -198,6 +218,7 @@ end, {
   desc = 'Open project',
 })
 
+-- =====================================================
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
@@ -1175,6 +1196,18 @@ end, { desc = 'Update current session' })
 
 -- Colorscheme picker
 vim.keymap.set('n', '<leader>sC', '<cmd>Telescope colorscheme<CR>', { desc = 'Search and choose colorscheme' })
+
+-- Orgmode mappings
+-- vim.api.nvim_create_autocmd('FileType', {
+--   pattern = 'org',
+--   callback = function()
+--     vim.keymap.set({ 'i', 'n' }, '<S-CR>', '<cmd>lua require("orgmode").action("org_mappings.meta_return")<CR>', {
+--       silent = true,
+--       buffer = true,
+--     })
+--   end,
+-- })
+-- TODO: orgmode is still not working how I want it to... so many keybindings missing
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et

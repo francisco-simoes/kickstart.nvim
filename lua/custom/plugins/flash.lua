@@ -6,14 +6,23 @@ return {
   keys = {
     {
       's',
-      mode = { 'n', 'x', 'o' },
+      mode = { 'n', 'x' },
       function()
         require('flash').jump()
       end,
       desc = 'Flash',
     },
     {
-      'S',
+      'gs', -- free up s for surround in operator-pending mode
+      mode = { 'o' },
+      function()
+        require('flash').jump()
+      end,
+      desc = 'Flash',
+    },
+
+    {
+      'gS', -- free up S for surround in all modes
       mode = { 'n', 'x', 'o' },
       function()
         require('flash').treesitter()
@@ -37,7 +46,7 @@ return {
       desc = 'Treesitter Search',
     },
     {
-      '<c-s>',
+      '<c-f>',
       mode = { 'c' },
       function()
         require('flash').toggle()
