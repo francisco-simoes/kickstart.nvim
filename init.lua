@@ -94,7 +94,7 @@ vim.o.confirm = true
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- Diagnostic keymaps
-vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+vim.keymap.set('n', '<leader>Q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 vim.keymap.set('n', ']e', function()
   vim.diagnostic.jump { count = 1, float = true }
 end, { desc = 'Go to next [E]rror message' })
@@ -363,6 +363,7 @@ require('lazy').setup {
         { '<leader>g', group = 'Neo[G]it' },
         { '<leader>w', group = '[W]indow' },
         { '<leader>f', group = '[F]iles' },
+        { '<leader>q', group = 'Session' },
       },
     },
   }, -- END of whick-key
@@ -864,9 +865,10 @@ require('lazy').setup {
       {
         'L3MON4D3/LuaSnip',
         version = '2.*',
+        event = 'InsertEnter',
         config = function()
+          require('luasnip').config.set_config { enable_autosnippets = true, updateevents = 'TextChanged,TextChangedI' }
           require('luasnip.loaders.from_lua').lazy_load { paths = vim.fn.stdpath 'config' .. '/lua/custom/plugins/luasnip' }
-          require('luasnip').setup { enable_autosnippets = true }
         end,
         build = (function()
           -- Build Step is needed for regex support in snippets.
@@ -888,7 +890,7 @@ require('lazy').setup {
           --   end,
           -- },
         },
-        opts = {},
+        -- opts = { enable_autosnippets = true },
       }, -- END of luasnip
       'folke/lazydev.nvim',
     },
@@ -932,7 +934,20 @@ require('lazy').setup {
         },
       },
 
-      snippets = { preset = 'luasnip' },
+      snippets = {
+        preset = 'luasnip',
+        -- For `snippets.preset == 'luasnip'`
+        opts = {
+          -- Whether to use show_condition for filtering snippets
+          use_show_condition = true,
+          -- Whether to show autosnippets in the completion list
+          show_autosnippets = true,
+          -- Whether to prefer docTrig placeholders over trig when expanding regTrig snippets
+          prefer_doc_trig = false,
+          -- Whether to put the snippet description in the label description
+          use_label_description = false,
+        },
+      },
 
       -- Blink.cmp includes an optional, recommended rust fuzzy matcher,
       -- which automatically downloads a prebuilt binary when enabled.
@@ -1164,17 +1179,54 @@ require('lazy').setup {
 vim.keymap.set('n', '<leader>o-', '<cmd>Oil<CR>', { desc = 'Open Oil (file manager)' })
 
 -- Doom-like session management
+-- vim.keymap.set('n', '<leader>ql', function()
+--   vim.ui.input({ prompt = 'Session name: ' }, function(name)
+--     if name and name ~= '' then
+--       MiniSessions.read(name)
+--     end
+--   end)
+-- end, { desc = 'Load session' })
 vim.keymap.set('n', '<leader>ql', function()
-  vim.ui.input({ prompt = 'Session name: ' }, function(name)
-    if name and name ~= '' then
-      MiniSessions.read(name)
-    end
-  end)
-end, { desc = 'Load session' })
--- TODO: make this use telescope or some nice completion...
+  local telescope = require 'telescope.pickers'
+  local finders = require 'telescope.finders'
+  local conf = require('telescope.config').values
+  local actions = require 'telescope.actions'
+  local action_state = require 'telescope.actions.state'
+
+  local sessions = vim.tbl_keys(MiniSessions.detected or {})
+
+  telescope
+    .new({}, {
+      prompt_title = 'Sessions',
+      finder = finders.new_table {
+        results = sessions,
+      },
+      sorter = conf.generic_sorter {},
+      attach_mappings = function(prompt_bufnr, map)
+        actions.select_default:replace(function()
+          actions.close(prompt_bufnr)
+          local selection = action_state.get_selected_entry()
+          if selection then
+            MiniSessions.read(selection[1])
+          end
+        end)
+        return true
+      end,
+    })
+    :find()
+end, { desc = 'Load session (Telescope)' })
+
 vim.keymap.set('n', '<leader>qw', function()
   MiniSessions.write(nil)
 end, { desc = 'Update current session' })
+
+vim.keymap.set('n', '<leader>qn', function()
+  vim.ui.input({ prompt = 'New session name: ' }, function(name)
+    if name and name ~= '' then
+      MiniSessions.write(name)
+    end
+  end)
+end, { desc = 'Create new session' })
 
 -- Keybinding for luasnip
 -- local ls = require 'luasnip'
