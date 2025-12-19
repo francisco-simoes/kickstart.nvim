@@ -1,0 +1,13 @@
+-- NOTE: After a frustrating amount of work, I found in the
+-- documentation of vimtex that `a=\alpha etc is not supposed
+-- to work anymore, unless paired with a snippet engine.
+--
+-- vim.b.minipairs_config = {
+--   pairs = {
+--     ['`'] = { action = 'none' },
+--     -- ['`'] = false,
+--   },
+-- }
+
+-- require('mini.pairs').unmap('i', '`', '``')
+-- vim.g.vimtex_imaps_leader = '`'

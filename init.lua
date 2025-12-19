@@ -147,21 +147,41 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 })
 
 -- [[ Extra options and (non-plugin) keymaps by fsimoes ]]
+
+-- Not folded when opening new buffer; but foldable
+-- vim.opt.foldmethod = 'expr'
+-- vim.opt.foldexpr = 'nvim_treesitter#foldexpr()'
+vim.opt.foldenable = true
+vim.opt.foldlevelstart = 99
+vim.opt.foldlevel = 99
+
+-- Nerd font stuff
+vim.o.guifont = 'JetBrainsMono Nerd Font:h12' -- To configure e.g. the size
+vim.g.have_nerd_font = true -- I have a nerd font installed, so let nvim (and telescope in particular) use it
+
+-- Neovide stuff
 if vim.g.neovide == true then
-  vim.api.nvim_set_keymap('n', '<C-=>', ':lua vim.g.neovide_scale_factor = math.min(vim.g.neovide_scale_factor + 0.1,  1.0)<CR>', { silent = true })
-  vim.api.nvim_set_keymap('n', '<C-->', ':lua vim.g.neovide_scale_factor = math.max(vim.g.neovide_scale_factor - 0.1,  0.1)<CR>', { silent = true })
-  vim.api.nvim_set_keymap('n', '<C-+>', ':lua vim.g.neovide_transparency = math.min(vim.g.neovide_transparency + 0.05, 1.0)<CR>', { silent = true })
-  vim.api.nvim_set_keymap('n', '<C-_>', ':lua vim.g.neovide_transparency = math.max(vim.g.neovide_transparency - 0.05, 0.0)<CR>', { silent = true })
-  vim.api.nvim_set_keymap('n', '<C-0>', ':lua vim.g.neovide_scale_factor = 0.5<CR>', { silent = true })
-  vim.api.nvim_set_keymap('n', '<C-)>', ':lua vim.g.neovide_transparency = 0.9<CR>', { silent = true })
+  local max_scale = 3.0
+  local min_scale = 0.3
+  vim.keymap.set('n', '<C-=>', function()
+    vim.g.neovide_scale_factor = math.min(vim.g.neovide_scale_factor + 0.1, max_scale)
+    -- vim.notify('Scale:' .. vim.g.neovide_scale_factor)
+  end)
+  vim.keymap.set('n', '<C-->', function()
+    vim.g.neovide_scale_factor = math.max(vim.g.neovide_scale_factor - 0.1, min_scale)
+  end)
+  vim.api.nvim_set_keymap('n', '<C-0>', ':lua vim.g.neovide_scale_factor = 1.0<CR>', { silent = true })
+  -- vim.api.nvim_set_keymap('n', '<C-+>', ':lua vim.g.neovide_transparency = math.min(vim.g.neovide_transparency + 0.05, 1.0)<CR>', { silent = true })
+  -- vim.api.nvim_set_keymap('n', '<C-_>', ':lua vim.g.neovide_transparency = math.max(vim.g.neovide_transparency - 0.05, 0.0)<CR>', { silent = true })
+  -- vim.api.nvim_set_keymap('n', '<C-)>', ':lua vim.g.neovide_transparency = 0.9<CR>', { silent = true })
 end
 
 -- pynvim provider in venv
 -- vim.g.python3_host_prog = vim.fn.expand '~/.virtualenvs/pynvim/bin/python' -- only needed if using UltiSnips
 
--- 2 space tabs in tex files
+-- 2 space tabs in tex and lua files
 vim.api.nvim_create_autocmd('FileType', {
-  pattern = 'tex',
+  pattern = { 'tex', 'lua' },
   callback = function()
     vim.opt_local.tabstop = 2 -- visual width of tab
     vim.opt_local.shiftwidth = 2 -- indentation size of >>
@@ -227,6 +247,16 @@ end, {
   noremap = true,
   silent = true,
   desc = 'Open project',
+})
+
+-- Open pdf files with xdg-open
+vim.api.nvim_create_autocmd('BufReadPost', {
+  pattern = '*.pdf',
+  callback = function()
+    local file = vim.fn.expand '%:p'
+    vim.fn.jobstart({ 'xdg-open', file }, { detach = true })
+    vim.cmd 'bdelete!'
+  end,
 })
 
 -- =====================================================
@@ -364,6 +394,7 @@ require('lazy').setup {
         { '<leader>w', group = '[W]indow' },
         { '<leader>f', group = '[F]iles' },
         { '<leader>q', group = 'Session' },
+        { '<leader>S', group = '[S]nippet stuff' },
       },
     },
   }, -- END of whick-key
@@ -426,6 +457,7 @@ require('lazy').setup {
         --  All the info you're looking for is in `:help telescope.setup()`
         --
         defaults = {
+          path_display = { 'filename_first' },
           mappings = {
             i = { ['<C-h>'] = 'which_key' },
             n = { ['<C-h>'] = 'which_key', ['?'] = 'which_key' },
@@ -864,33 +896,37 @@ require('lazy').setup {
       -- Snippet Engine
       {
         'L3MON4D3/LuaSnip',
-        version = '2.*',
-        event = 'InsertEnter',
-        config = function()
-          require('luasnip').config.set_config { enable_autosnippets = true, updateevents = 'TextChanged,TextChangedI' }
-          require('luasnip.loaders.from_lua').lazy_load { paths = vim.fn.stdpath 'config' .. '/lua/custom/plugins/luasnip' }
-        end,
-        build = (function()
-          -- Build Step is needed for regex support in snippets.
-          -- This step is not supported in many windows environments.
-          -- Remove the below condition to re-enable on windows.
-          if vim.fn.has 'win32' == 1 or vim.fn.executable 'make' == 0 then
-            return
-          end
-          return 'make install_jsregexp'
-        end)(),
-        dependencies = {
-          -- `friendly-snippets` contains a variety of premade snippets.
-          --    See the README about individual language/framework/plugin snippets:
-          --    https://github.com/rafamadriz/friendly-snippets
-          -- {
-          --   'rafamadriz/friendly-snippets',
-          --   config = function()
-          --     require('luasnip.loaders.from_vscode').lazy_load { exclude = { 'javascript' } }
-          --   end,
-          -- },
-        },
-        -- opts = { enable_autosnippets = true },
+        -- version = '2.*',
+        -- event = 'InsertEnter',
+        -- config = function()
+        --   local ls = require 'luasnip'
+        --   vim.keymap.set({ 'i', 's' }, '<C-k>', function()
+        --     ls.expand()
+        --   end, { silent = true })
+        --   require('luasnip').config.set_config { enable_autosnippets = true, updateevents = 'TextChanged,TextChangedI' }
+        --   require('luasnip.loaders.from_lua').lazy_load { paths = vim.fn.stdpath 'config' .. '/lua/custom/plugins/luasnip' }
+        -- end,
+        -- build = (function()
+        --   -- Build Step is needed for regex support in snippets.
+        --   -- This step is not supported in many windows environments.
+        --   -- Remove the below condition to re-enable on windows.
+        --   if vim.fn.has 'win32' == 1 or vim.fn.executable 'make' == 0 then
+        --     return
+        --   end
+        --   return 'make install_jsregexp'
+        -- end)(),
+        -- dependencies = {
+        --   -- `friendly-snippets` contains a variety of premade snippets.
+        --   --    See the README about individual language/framework/plugin snippets:
+        --   --    https://github.com/rafamadriz/friendly-snippets
+        --   -- {
+        --   --   'rafamadriz/friendly-snippets',
+        --   --   config = function()
+        --   --     require('luasnip.loaders.from_vscode').lazy_load { exclude = { 'javascript' } }
+        --   --   end,
+        --   -- },
+        -- },
+        -- -- opts = { enable_autosnippets = true },
       }, -- END of luasnip
       'folke/lazydev.nvim',
     },
@@ -910,6 +946,7 @@ require('lazy').setup {
         -- preset = 'super-tab',
         ['<C-l>'] = { 'snippet_forward', 'fallback' },
         ['<C-h>'] = { 'snippet_backward', 'fallback' },
+        ['<C-k>'] = false, -- free up C-k
 
         -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
         --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
@@ -1012,6 +1049,13 @@ require('lazy').setup {
           end,
         },
         n_lines = 500,
+      }
+
+      -- automatic parenthesis etc. closing
+      require('mini.pairs').setup {
+        mappings = {
+          ['`'] = false,
+        },
       }
 
       -- Add/delete/replace surroundings (brackets, quotes, etc.)
@@ -1178,6 +1222,11 @@ require('lazy').setup {
 -- Doom-like Oil keymap
 vim.keymap.set('n', '<leader>o-', '<cmd>Oil<CR>', { desc = 'Open Oil (file manager)' })
 
+-- Command pickers
+vim.keymap.set('n', '<leader>sc', '<cmd>Telescope commands<cr>', { desc = 'Search commands' })
+vim.keymap.set('n', '<leader>s:', '<cmd>Telescope command_history<cr>', { desc = 'Search command history' })
+vim.keymap.set('n', '<leader>Hc', '<cmd>Telescope command_history<cr>', { desc = 'Search command history' })
+
 -- Doom-like session management
 -- vim.keymap.set('n', '<leader>ql', function()
 --   vim.ui.input({ prompt = 'Session name: ' }, function(name)
@@ -1229,22 +1278,26 @@ vim.keymap.set('n', '<leader>qn', function()
 end, { desc = 'Create new session' })
 
 -- Keybinding for luasnip
--- local ls = require 'luasnip'
--- vim.keymap.set({ 'i' }, '<C-K>', function()
---   ls.expand()
--- end, { silent = true })
--- vim.keymap.set({ 'i', 's' }, '<C-L>', function()
---   ls.jump(1)
--- end, { silent = true })
--- vim.keymap.set({ 'i', 's' }, '<C-J>', function()
---   ls.jump(-1)
--- end, { silent = true })
---
--- vim.keymap.set({ 'i', 's' }, '<C-M>', function()
---   if ls.choice_active() then
---     ls.change_choice(1)
---   end
--- end, { silent = true })
+-- vim.keymap.del('i', '<C-k>')
+local ls = require 'luasnip'
+vim.keymap.set({ 'i', 's' }, '<C-k>', function()
+  if ls.expand_or_jumpable() then
+    ls.expand_or_jump() -- expand or go to next snippet element
+  end
+end, { silent = true })
+vim.keymap.set({ 'i', 's' }, '<C-j>', function()
+  if ls.jumpable(-1) then -- go to previous snippet element
+    ls.jump(-1)
+  end
+end, { silent = true })
+
+vim.keymap.set({ 'i', 's' }, '<C-l>', function()
+  if ls.choice_active() then
+    ls.change_choice(1) -- cycle though list of options
+  end
+end, { silent = true })
+
+vim.keymap.set('n', '<leader>Sr', '<cmd>source ~/.config/nvim/lua/custom/plugins/luasnip.lua<CR>', { desc = 'Reload LuaSnip' })
 
 -- Colorscheme picker
 vim.keymap.set('n', '<leader>sC', '<cmd>Telescope colorscheme<CR>', { desc = 'Search and choose colorscheme' })
