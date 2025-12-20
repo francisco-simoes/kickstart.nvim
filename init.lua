@@ -199,6 +199,9 @@ vim.api.nvim_create_autocmd('FileType', {
   end,
 })
 
+-- Doom-like copy current file path
+vim.keymap.set('n', '<leader>fy', '<cmd>let @+ = expand("%:p")<CR>', { desc = 'Yank current file path' })
+
 -- Doom-like quitting
 vim.keymap.set('n', '<leader>qq', ':qa<CR>', { desc = '[Q]uit Neovim' })
 
@@ -248,6 +251,9 @@ end, {
   silent = true,
   desc = 'Open project',
 })
+
+-- Define the Telescope bibtex Picker keymap
+vim.keymap.set('n', '<leader>sl', '<cmd>Telescope bibtex<CR>', { desc = 'Search Library' })
 
 -- Open pdf files with xdg-open
 vim.api.nvim_create_autocmd('BufReadPost', {
@@ -451,7 +457,13 @@ require('lazy').setup {
 
       -- [[ Configure Telescope ]]
       -- See `:help telescope` and `:help telescope.setup()`
+      -- local vars to help in setup of telescope-bibtex
+      local bibtex_actions = require 'telescope-bibtex.actions'
+      local action_state = require 'telescope.actions.state'
+      local actions = require 'telescope.actions'
+      local job = require 'plenary.job'
       local project_actions = require 'telescope._extensions.project.actions'
+
       require('telescope').setup {
         -- You can put your default mappings / updates / etc. in here
         --  All the info you're looking for is in `:help telescope.setup()`
@@ -468,11 +480,12 @@ require('lazy').setup {
           find_files = { hidden = true },
         },
 
-        -- telescope-project config
         extensions = {
           ['ui-select'] = {
             require('telescope.themes').get_dropdown(),
           },
+
+          -- telescope-project config
           project = {
             base_dirs = {
               { path = '~/Documents', max_depth = 10 }, -- searches here for projects
@@ -515,6 +528,76 @@ require('lazy').setup {
                 ['<c-r>'] = project_actions.recent_project_files,
                 ['<c-l>'] = project_actions.change_working_directory,
                 ['<c-o>'] = project_actions.next_cd_scope,
+              },
+            },
+          },
+
+          -- telescope-bibtex config
+          bibtex = {
+            -- Depth for the *.bib file
+            depth = 1,
+            -- Custom format for citation label
+            custom_formats = {},
+            -- Format to use for citation label.
+            -- Try to match the filetype by default, or use 'plain'
+            format = '',
+            -- Path to global bibliographies (placed outside of the project)
+            global_files = { '~/Documents/Library/library.bib' },
+            -- Define the search keys to use in the picker
+            search_keys = { 'author', 'year', 'title' },
+            -- Template for the formatted citation
+            citation_format = '{{author}} ({{year}}), {{title}}.',
+            -- Only use initials for the authors first name
+            citation_trim_firstname = true,
+            -- Max number of authors to write in the formatted citation
+            -- following authors will be replaced by "et al."
+            citation_max_auth = 2,
+            -- Context awareness disabled by default
+            context = false,
+            -- Fallback to global/directory .bib files if context not found
+            -- This setting has no effect if context = false
+            context_fallback = true,
+            -- Wrapping in the preview window is disabled by default
+            wrap = false,
+            -- user defined mappings
+            mappings = {
+              i = {
+                ['<CR>'] = function(prompt_bufnr)
+                  local entry = action_state.get_selected_entry().id.content
+                  actions.close(prompt_bufnr)
+
+                  entry = table.concat(entry, '\n')
+
+                  local key = entry:match '@%w+%s*{%s*([^,]+),'
+                  if not key then
+                    return
+                  end
+
+                  local library = vim.fn.expand '~/Documents/Library'
+                  local target = key .. '.pdf'
+
+                  job
+                    :new({
+                      command = 'fd',
+                      args = { '--type', 'f', target, library },
+                      on_exit = function(j, return_val)
+                        if return_val ~= 0 then
+                          return
+                        end
+                        local results = j:result()
+                        if #results > 0 then
+                          job
+                            :new({
+                              command = 'open',
+                              args = { results[1] },
+                              detached = true,
+                            })
+                            :start()
+                        end
+                      end,
+                    })
+                    :start()
+                end,
               },
             },
           },

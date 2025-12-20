@@ -20,4 +20,7 @@
 - [ ] multicursor
 - [ ] session making keymap
 - [ ] Make neogit open in current buffer's directory instead of cwd
-
+- [ ] make org insert link work properly (i.e. see stored links)
+- [ ] org cycle list type - where is that functionality??
+- [ ] window undo does not exist - need a plugin?
+- [ ] open Library files from telescope using telescope-bibtex. It seens this guy solved it: https://github.com/nvim-telescope/telescope-bibtex.nvim/issues/73#issuecomment-2058456940

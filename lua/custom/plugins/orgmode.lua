@@ -6,6 +6,7 @@ return {
     require('orgmode').setup {
       org_agenda_files = '~/.orgfiles/**/*',
       org_default_notes_file = '~/.orgfiles/refile.org',
+      -- org_adapt_indentation = true, -- indent subheadings etc
 
       mappings = { -- NOTE: These are for normal mode!
         ----                For insert mode keymaps: nvim/ftplugin/org.lua
@@ -26,12 +27,13 @@ return {
         },
       },
 
-      org_todo_keywords = { 'TODO(t)', 'IDEA(i)', 'INPROGRESS(I)', 'PAUSED(p)', '|', 'DONE(d)', 'CANCELLED(c)' },
+      org_todo_keywords = { 'TODO(t)', 'IDEA(i)', 'INPROGRESS(I)', 'PAUSED(p)', 'RECURRENT(r)', '|', 'DONE(d)', 'CANCELLED(c)' },
       org_todo_keyword_faces = {
         TODO = ':foreground orange :weight bold',
         IDEA = ':foreground yellow',
         INPROGRESS = ':foreground blue',
         PAUSED = ':foreground blue :slant italic',
+        RECURRENT = ':foreground darkorange :slant italic',
         DONE = ':foreground green', -- overrides builtin color for `TODO` keyword
         CANCELLED = ':foreground red :slant italic',
       },
