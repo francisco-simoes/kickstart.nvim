@@ -280,6 +280,16 @@ vim.keymap.set('n', '<leader>ot', function()
   vim.fn.jobstart({ 'xfce4-terminal', '--working-directory', dir }, { detach = true })
 end, { desc = "Open external terminal in current buffer's directory" })
 
+-- Automatically change cwd to parent dir with .git after entering a buffer
+vim.api.nvim_create_autocmd('BufEnter', {
+  callback = function()
+    local root = vim.fs.root(0, { '.git' })
+    if root then
+      vim.cmd('cd ' .. root)
+    end
+  end,
+})
+
 -- =====================================================
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
