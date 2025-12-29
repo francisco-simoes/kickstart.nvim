@@ -1,13 +1,13 @@
-- [ ] make latex work fine
+- [X] make latex work fine
 - [X] snippets for latex from https://github.com/honza/vim-snippets/blob/master/snippets/tex.snippets
 - [ ] or Lua Snip for snippets?!! used in kickstart! If I change: remember to uninstall pynvim and remove its path from init.lua
-- [ ] autocomplete like ipdb<tab> in python - with Ultisnips?!
+- [X] autocomplete like ipdb<tab> in python - with Ultisnips?! --> already in friendlysnippets I think!
 - [ ] autocomplete - tab to select
 - [X] gp to select last pasted text
 - [ ] <C-p> and <C-n> to change pasted text
 - [X] Surround plugin
-- [ ] open pdfs with zathura.
-- [ ] completion in command line without using arrows.
+- [X] open pdfs with zathura.
+- [X] completion in command line without using arrows. --> just use C-p, C-n
 - [X] session management like doom
 - [ ] tab management like doom
 - [X] yig to yank inside entire file
@@ -24,3 +24,4 @@
 - [ ] org cycle list type - where is that functionality??
 - [ ] window undo does not exist - need a plugin?
 - [ ] open Library files from telescope using telescope-bibtex. It seens this guy solved it: https://github.com/nvim-telescope/telescope-bibtex.nvim/issues/73#issuecomment-2058456940
+- [ ] replace mason with lsp-config or so - and use that to configure pylsp (or pyright!) with pipenv - see https://www.reddit.com/r/neovim/comments/11eb3e6/how_can_i_pass_my_pipenv_enviroment_to_pythonls/

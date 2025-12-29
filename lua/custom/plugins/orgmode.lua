@@ -15,7 +15,10 @@ return {
           org_insert_heading_respect_content = '<C-CR>', -- add headline, item, etc below
 
           org_todo = '<leader>ot', -- cycle forward or open TODO states prompt if enabled
-          org_todo_prev = '<leader>oT', -- cycle backward TODO states or open prompt
+          -- org_todo_prev = '', -- cycle backward TODO states or open prompt
+
+          org_set_tags_command = '<leader>oT',
+
           org_toggle_checkbox = { '<leader><CR>', '<leader>ox' },
 
           org_priority_down = { '<leader>pj', '<C-A-j>' },
@@ -27,7 +30,7 @@ return {
         },
       },
 
-      org_todo_keywords = { 'TODO(t)', 'IDEA(i)', 'INPROGRESS(I)', 'PAUSED(p)', 'RECURRENT(r)', '|', 'DONE(d)', 'CANCELLED(c)' },
+      org_todo_keywords = { 'TODO(t)', 'IDEA(i)', 'INPROGRESS(m)', 'PAUSED(p)', 'RECURRENT(r)', '|', 'DONE(d)', 'CANCELLED(c)' },
       org_todo_keyword_faces = {
         TODO = ':foreground orange :weight bold',
         IDEA = ':foreground yellow',

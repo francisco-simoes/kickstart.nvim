@@ -80,6 +80,13 @@ return {
         footer = {
           '',
           'Neovim ready',
+          '',
+          '',
+          '',
+          '🐸 Dutch B2->C1 OR 5th paper (>1 hour)',
+          '🥩 Job hunt OR portfolio project (>1 hour)',
+          '🍏 Algorithms OR Radars OR Quantum computing OR Finance course (>1 hour)',
+          '🍬 Godot (Optional)',
         },
       },
     }
