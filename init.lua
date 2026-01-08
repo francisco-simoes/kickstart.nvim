@@ -136,6 +136,39 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 })
 
 -- [[ Extra options and (non-plugin) keymaps by fsimoes ]]
+-- Proper white background with tokyonight-day theme
+vim.api.nvim_create_autocmd('ColorScheme', {
+  pattern = 'tokyonight-day',
+  callback = function()
+    vim.api.nvim_set_hl(0, 'Normal', { bg = '#ffffff' })
+    vim.api.nvim_set_hl(0, 'NormalFloat', { bg = '#ffffff' }) -- floating windows
+    vim.api.nvim_set_hl(0, 'CursorLine', { bg = '#cefece' })
+    vim.api.nvim_set_hl(0, 'NormalNC', { bg = '#f5f5f5' }) -- non-active windows with very light gray
+    vim.api.nvim_set_hl(0, 'EndOfBuffer', { bg = '#ffffff' })
+    vim.api.nvim_set_hl(0, 'LineNr', { bg = '#f5f5f5' }) -- line number column
+    vim.api.nvim_set_hl(0, 'FoldColumn', { bg = '#f5f5f5' }) -- fold indicators
+    vim.api.nvim_set_hl(0, 'Folded', {
+      fg = '#666666',
+      bg = '#eeeeee',
+    })
+    vim.api.nvim_set_hl(0, 'SignColumn', { bg = '#f5f5f5' }) -- gutter
+
+    vim.api.nvim_set_hl(0, 'TelescopeNormal', { bg = white })
+    vim.api.nvim_set_hl(0, 'TelescopeResultsNormal', { bg = white })
+    vim.api.nvim_set_hl(0, 'TelescopePromptNormal', { bg = gray })
+    vim.api.nvim_set_hl(0, 'TelescopePromptBorder', { bg = gray, fg = '#e0e0e0' })
+    vim.api.nvim_set_hl(0, 'TelescopeBorder', { bg = white, fg = '#e0e0e0' })
+    vim.api.nvim_set_hl(0, 'TelescopeResultsBorder', { bg = white, fg = '#e0e0e0' })
+    vim.api.nvim_set_hl(0, 'TelescopeSelection', {
+      bg = '#cefece',
+      fg = 'NONE',
+    })
+  end,
+})
+
+-- To conceal links in orgmode
+vim.opt.conceallevel = 2
+vim.opt.concealcursor = 'nc'
 
 -- Not folded when opening new buffer; but foldable
 -- vim.opt.foldmethod = 'expr'
@@ -494,7 +527,7 @@ require('lazy').setup {
         --  All the info you're looking for is in `:help telescope.setup()`
         --
         defaults = {
-          path_display = { 'filename_first' },
+          path_display = { 'truncate' },
           mappings = {
             i = { ['<C-h>'] = 'which_key' },
             n = { ['<C-h>'] = 'which_key', ['?'] = 'which_key' },
@@ -887,9 +920,12 @@ require('lazy').setup {
       -- Load the colorscheme here.
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
+      -- vim.cmd.colorscheme 'tokyonight-night'
+      vim.cmd.colorscheme 'tokyonight-day'
     end,
   },
+
+  { 'neanias/everforest-nvim' },
 
   -- Highlight todo, notes, etc in comments
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
@@ -1170,6 +1206,16 @@ vim.keymap.set('n', '<leader>Sr', '<cmd>source ~/.config/nvim/lua/custom/plugins
 
 -- Colorscheme picker
 vim.keymap.set('n', '<leader>sC', '<cmd>Telescope colorscheme<CR>', { desc = 'Search and choose colorscheme' })
+
+-- Toggle dark and light background/mode
+vim.api.nvim_create_user_command('ToggleBackground', function()
+  vim.o.background = (vim.o.background == 'dark') and 'light' or 'dark'
+  vim.cmd.colorscheme(vim.g.colors_name)
+end, {})
+vim.keymap.set('n', '<leader>tb', function()
+  vim.o.background = (vim.o.background == 'dark') and 'light' or 'dark'
+  vim.cmd.colorscheme(vim.g.colors_name)
+end, { desc = '[T]oggle [B]ackground (light vs dark)' })
 
 -- Orgmode mappings
 -- vim.api.nvim_create_autocmd('FileType', {
