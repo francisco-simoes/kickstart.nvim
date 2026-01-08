@@ -4,9 +4,11 @@ return {
   ft = { 'org' },
   config = function()
     require('orgmode').setup {
-      org_agenda_files = '~/.orgfiles/**/*',
+      org_agenda_files = { '~/.orgfiles/**/*', '~/Documents/Notes/general_todos.org', '~/Documents/Notes/Career/**/*' },
       org_default_notes_file = '~/.orgfiles/refile.org',
       -- org_adapt_indentation = true, -- indent subheadings etc
+      org_startup_indented = true,
+      -- org_id_link_to_org_use_id = true,
 
       mappings = { -- NOTE: These are for normal mode!
         ----                For insert mode keymaps: nvim/ftplugin/org.lua
