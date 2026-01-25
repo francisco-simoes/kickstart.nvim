@@ -140,31 +140,77 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 vim.api.nvim_create_autocmd('ColorScheme', {
   pattern = 'tokyonight-day',
   callback = function()
-    vim.api.nvim_set_hl(0, 'Normal', { bg = '#ffffff' })
-    vim.api.nvim_set_hl(0, 'NormalFloat', { bg = '#ffffff' }) -- floating windows
-    vim.api.nvim_set_hl(0, 'CursorLine', { bg = '#cefece' })
-    vim.api.nvim_set_hl(0, 'NormalNC', { bg = '#f5f5f5' }) -- non-active windows with very light gray
-    vim.api.nvim_set_hl(0, 'EndOfBuffer', { bg = '#ffffff' })
-    vim.api.nvim_set_hl(0, 'LineNr', { bg = '#f5f5f5' }) -- line number column
-    vim.api.nvim_set_hl(0, 'FoldColumn', { bg = '#f5f5f5' }) -- fold indicators
-    vim.api.nvim_set_hl(0, 'Folded', {
-      fg = '#666666',
-      bg = '#eeeeee',
-    })
-    vim.api.nvim_set_hl(0, 'SignColumn', { bg = '#f5f5f5' }) -- gutter
+    -- vim.api.nvim_set_hl(0, 'Normal', { bg = '#ffffff' }) -- pure white
+    -- vim.api.nvim_set_hl(0, 'Normal', { bg = '#e8e8e8'}) -- light gray
+    -- Note: the above set fg to None, so need to do the following:
+    vim.schedule(function() -- set bg to light gray while keeping fg color the one from the theme
+      local normal = vim.api.nvim_get_hl(0, { name = 'Normal', link = false })
+      vim.api.nvim_set_hl(
+        0,
+        'Normal',
+        vim.tbl_extend('force', normal, {
+          bg = '#e8e8e8',
+        })
+      )
+    end)
 
-    vim.api.nvim_set_hl(0, 'TelescopeNormal', { bg = white })
-    vim.api.nvim_set_hl(0, 'TelescopeResultsNormal', { bg = white })
-    vim.api.nvim_set_hl(0, 'TelescopePromptNormal', { bg = gray })
-    vim.api.nvim_set_hl(0, 'TelescopePromptBorder', { bg = gray, fg = '#e0e0e0' })
-    vim.api.nvim_set_hl(0, 'TelescopeBorder', { bg = white, fg = '#e0e0e0' })
-    vim.api.nvim_set_hl(0, 'TelescopeResultsBorder', { bg = white, fg = '#e0e0e0' })
-    vim.api.nvim_set_hl(0, 'TelescopeSelection', {
-      bg = '#cefece',
-      fg = 'NONE',
-    })
+    --     vim.api.nvim_set_hl(0, 'NormalFloat', { bg = '#ffffff' }) -- floating windows
+    --     vim.api.nvim_set_hl(0, 'NormalNC', { bg = '#f5f5f5' }) -- non-active windows with very light gray
+    --
+    vim.api.nvim_set_hl(0, 'CursorLine', { bg = '#cefece' })
+    --     vim.api.nvim_set_hl(0, 'EndOfBuffer', { bg = '#ffffff' })
+    --     vim.api.nvim_set_hl(0, 'LineNr', { bg = '#f5f5f5' }) -- line number column
+    --     vim.api.nvim_set_hl(0, 'FoldColumn', { bg = '#f5f5f5' }) -- fold indicators
+    --     vim.api.nvim_set_hl(0, 'Folded', {
+    --       fg = '#666666',
+    --       bg = '#eeeeee',
+    --     })
+    --     vim.api.nvim_set_hl(0, 'SignColumn', { bg = '#f5f5f5' }) -- gutter
+    --
+    --     vim.api.nvim_set_hl(0, 'TelescopeNormal', { bg = white })
+    --     vim.api.nvim_set_hl(0, 'TelescopeResultsNormal', { bg = white })
+    --     vim.api.nvim_set_hl(0, 'TelescopePromptNormal', { bg = gray })
+    --     vim.api.nvim_set_hl(0, 'TelescopePromptBorder', { bg = gray, fg = '#e0e0e0' })
+    --     vim.api.nvim_set_hl(0, 'TelescopeBorder', { bg = white, fg = '#e0e0e0' })
+    --     vim.api.nvim_set_hl(0, 'TelescopeResultsBorder', { bg = white, fg = '#e0e0e0' })
+    --     vim.api.nvim_set_hl(0, 'TelescopeSelection', {
+    --       bg = '#cefece',
+    --       fg = 'NONE',
+    --     })
+    -- vim.api.nvim_set_hl(0, '@org.agenda.scheduled', { -- scheduled elements in org agenda
+    --   fg = '#e0af68',
+    --   bold = false,
+    -- })
   end,
 })
+
+-- Darker non-focused windows in all themes
+local function darken(color, factor)
+  local r = math.floor(tonumber(color:sub(2, 3), 16) * factor)
+  local g = math.floor(tonumber(color:sub(4, 5), 16) * factor)
+  local b = math.floor(tonumber(color:sub(6, 7), 16) * factor)
+  return string.format('#%02x%02x%02x', r, g, b)
+end
+
+local function set_normal_nc()
+  -- extract theme's bg and fg, to then re-use fg and only change bg
+  local normal = vim.api.nvim_get_hl(0, { name = 'Normal', link = false })
+  if not normal.bg then
+    return
+  end
+
+  local bg = string.format('#%06x', normal.bg)
+  vim.api.nvim_set_hl(0, 'NormalNC', {
+    bg = darken(bg, 0.9), -- tweak factor here
+    fg = normal.fg, -- reuse fg
+  })
+end
+
+vim.api.nvim_create_autocmd('ColorScheme', {
+  callback = set_normal_nc,
+})
+
+set_normal_nc()
 
 -- To conceal links in orgmode
 vim.opt.conceallevel = 2
@@ -299,7 +345,8 @@ vim.api.nvim_create_autocmd('BufReadPost', {
   pattern = '*.pdf',
   callback = function()
     local file = vim.fn.expand '%:p'
-    vim.fn.jobstart({ 'xdg-open', file }, { detach = true })
+    -- vim.fn.jobstart({ 'xdg-open', file }, { detach = true })
+    vim.fn.jobstart({ 'okular', file }, { detach = true })
     vim.cmd 'bdelete!'
   end,
 })
@@ -1129,6 +1176,7 @@ vim.keymap.set('n', '<leader>o-', '<cmd>Oil<CR>', { desc = 'Open Oil (file manag
 
 -- Command pickers
 vim.keymap.set('n', '<leader>sc', '<cmd>Telescope commands<cr>', { desc = 'Search commands' })
+vim.keymap.set('n', '<M-x>', '<cmd>Telescope commands<cr>', { desc = 'Search commands' })
 vim.keymap.set('n', '<leader>s:', '<cmd>Telescope command_history<cr>', { desc = 'Search command history' })
 vim.keymap.set('n', '<leader>Hc', '<cmd>Telescope command_history<cr>', { desc = 'Search command history' })
 
@@ -1216,6 +1264,16 @@ vim.keymap.set('n', '<leader>tb', function()
   vim.o.background = (vim.o.background == 'dark') and 'light' or 'dark'
   vim.cmd.colorscheme(vim.g.colors_name)
 end, { desc = '[T]oggle [B]ackground (light vs dark)' })
+
+-- toggle markdown images in kitty terminal
+vim.keymap.set('n', '<leader>ti', function()
+  local image = require 'image'
+  if image.is_enabled() then
+    image.disable()
+  else
+    image.enable()
+  end
+end, { desc = 'Toggle images in Markdown (Kitty terminal)' })
 
 -- Orgmode mappings
 -- vim.api.nvim_create_autocmd('FileType', {

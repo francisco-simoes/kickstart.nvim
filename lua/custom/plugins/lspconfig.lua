@@ -227,6 +227,17 @@ return {
               -- diagnostics = { disable = { 'missing-fields' } },
             },
           },
+
+          markdown_oxide = {
+            -- markdown-oxide needs dynamic watched-files registration
+            capabilities = {
+              workspace = {
+                didChangeWatchedFiles = { dynamicRegistration = true },
+              },
+            },
+            -- optional; lspconfig usually sets these correctly
+            -- filetypes = { "markdown" },
+          },
         },
       }
 

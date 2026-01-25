@@ -19,6 +19,9 @@ return {
           org_todo = '<leader>ot', -- cycle forward or open TODO states prompt if enabled
           -- org_todo_prev = '', -- cycle backward TODO states or open prompt
 
+          org_deadline = '<leader>odd',
+          org_schedule = '<leader>ods',
+
           org_set_tags_command = '<leader>oT',
 
           org_toggle_checkbox = { '<leader><CR>', '<leader>ox' },
