@@ -352,7 +352,7 @@ vim.api.nvim_create_autocmd('BufReadPost', {
 })
 
 -- Open terminal in buffer directory
-vim.keymap.set('n', '<leader>ot', function()
+vim.keymap.set('n', '<leader>Ot', function()
   local dir = vim.fn.expand '%:p:h'
   if dir == '' then
     dir = vim.fn.getcwd()
