@@ -263,7 +263,7 @@ vim.api.nvim_create_autocmd('FileType', {
   pattern = { 'tex', 'markdown', 'org' },
   callback = function()
     vim.opt_local.spell = true
-    vim.opt_local.spelllang = { 'en_us' }
+    vim.opt_local.spelllang = { 'en_us', 'nl' }
   end,
 })
 
@@ -352,7 +352,7 @@ vim.api.nvim_create_autocmd('BufReadPost', {
 })
 
 -- Open terminal in buffer directory
-vim.keymap.set('n', '<leader>Ot', function()
+vim.keymap.set('n', '<leader>ot', function()
   local dir = vim.fn.expand '%:p:h'
   if dir == '' then
     dir = vim.fn.getcwd()
