@@ -357,7 +357,8 @@ vim.keymap.set('n', '<leader>ot', function()
   if dir == '' then
     dir = vim.fn.getcwd()
   end
-  vim.fn.jobstart({ 'xfce4-terminal', '--working-directory', dir }, { detach = true })
+  -- vim.fn.jobstart({ 'xfce4-terminal', '--working-directory', dir }, { detach = true })
+  vim.fn.jobstart({ 'kitty', '--working-directory', dir }, { detach = true })
 end, { desc = "Open external terminal in current buffer's directory" })
 
 -- Automatically change cwd to parent dir with .git after entering a buffer
@@ -1095,6 +1096,8 @@ require('lazy').setup {
 
       -- ... and there is more!
       --  Check out: https://github.com/echasnovski/mini.nvim
+      -- require('mini.tabline').setup {} -- These "tabs" are actually buffers!
+      require('mini.cmdline').setup {}
     end,
   }, -- END of mini.nvim
   --
@@ -1230,6 +1233,14 @@ vim.keymap.set('n', '<leader>qn', function()
   end)
 end, { desc = 'Create new session' })
 
+vim.keymap.set('n', '<leader>qs', function()
+  vim.ui.input({ prompt = 'Name of session to save to: ' }, function(name)
+    if name and name ~= '' then
+      MiniSessions.write(name, { force = true })
+    end
+  end)
+end, { desc = 'Save to session' })
+
 -- Keybinding for luasnip
 -- vim.keymap.del('i', '<C-k>')
 local ls = require 'luasnip'
@@ -1275,6 +1286,39 @@ vim.keymap.set('n', '<leader>ti', function()
   end
 end, { desc = 'Toggle images in Markdown (Kitty terminal)' })
 
+-- Tab stuff
+
+local map = vim.keymap.set
+local o = { silent = true }
+
+-- Alt-number: go to tabpage N (left-to-right)
+for i = 1, 9 do
+  map('n', '<M-' .. i .. '>', i .. 'gt', o)
+end
+
+-- leader-Tab "workspace" prefix (pick keys you like)
+map('n', '<leader><Tab>n', '<cmd>tabnew<cr>', o) -- new tabpage
+map('n', '<leader><Tab>d', '<cmd>tabclose<cr>', o) -- close tabpage
+-- map('n', '<leader><Tab>o', '<cmd>tabonly<cr>', o) -- close others
+map('n', '<leader><Tab>]', '<cmd>tabnext<cr>', o) -- next
+map('n', '<leader><Tab>[', '<cmd>tabprevious<cr>', o) -- prev
+map('n', '<leader><Tab>;', '<cmd>tabnext #<cr>', o) -- last tab (toggle)
+-- move current tab to left
+vim.api.nvim_set_keymap('n', '<leader><Tab>m[', ':-tabmove<CR>', { noremap = true })
+-- move current tab to right
+vim.api.nvim_set_keymap('n', '<leader><Tab>m]', ':+tabmove<CR>', { noremap = true })
+
+-- Rename current tabpage (Tabby stores & displays it)
+map('n', '<leader><Tab>r', function()
+  vim.ui.input({ prompt = 'Tab name: ' }, function(name)
+    if name and name ~= '' then
+      vim.cmd('Tabby rename_tab ' .. vim.fn.fnameescape(name))
+    end
+  end)
+end, o)
+
+-- Optional: Tabby's “jump mode” (single key to jump)
+map('n', '<leader><Tab>j', '<cmd>Tabby jump_to_tab<cr>', o)
 -- Orgmode mappings
 -- vim.api.nvim_create_autocmd('FileType', {
 --   pattern = 'org',
