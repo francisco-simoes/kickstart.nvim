@@ -340,14 +340,83 @@ end, {
 -- Define the Telescope bibtex Picker keymap
 vim.keymap.set('n', '<leader>sl', '<cmd>Telescope bibtex<CR>', { desc = 'Search Library' })
 
--- Open pdf files with xdg-open
+-- [[[ Opening pdfs ]]]
+local pdf_open_command = 'xdg-open'
+
+-- Open pdf files with xdg-open AND save to recent files
+local function add_to_oldfiles(path)
+  local p = vim.fn.fnamemodify(path, ':p')
+
+  -- copy current list
+  local cur = vim.v.oldfiles or {}
+  local new = {}
+
+  for i = 1, #cur do
+    if cur[i] ~= p then
+      table.insert(new, cur[i])
+    end
+  end
+
+  -- prepend as most recent
+  table.insert(new, 1, p)
+
+  -- replace the whole variable (important)
+  vim.v.oldfiles = new
+
+  -- optional: persist immediately
+  vim.cmd 'silent! wshada'
+end
+
 vim.api.nvim_create_autocmd('BufReadPost', {
   pattern = '*.pdf',
-  callback = function()
-    local file = vim.fn.expand '%:p'
-    -- vim.fn.jobstart({ 'xdg-open', file }, { detach = true })
-    vim.fn.jobstart({ 'okular', file }, { detach = true })
-    vim.cmd 'bdelete!'
+  callback = function(args)
+    local file = vim.fn.fnamemodify(args.file, ':p')
+
+    -- Add to oldfiles if not already present
+    add_to_oldfiles(file) -- <-- ensure it shows up in recent files
+    -- if not vim.tbl_contains(vim.v.oldfiles, file) then
+    --   table.insert(vim.v.oldfiles, 1, file)
+    -- end
+
+    -- Open externally
+    vim.fn.jobstart({ pdf_open_command, file }, { detach = true })
+
+    -- Remove buffer without affecting alternate file
+    vim.schedule(function()
+      vim.api.nvim_buf_delete(args.buf, { force = true })
+    end)
+  end,
+})
+
+-- From Oil too!
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = 'oil',
+  callback = function(args)
+    local oil = require 'oil'
+    local actions = require 'oil.actions'
+
+    vim.keymap.set('n', '<CR>', function()
+      local entry = oil.get_cursor_entry()
+      if not entry then
+        return
+      end
+
+      if entry.type == 'file' and entry.name:lower():match '%.pdf$' then
+        local dir = oil.get_current_dir()
+        if not dir then
+          return
+        end
+
+        local path = vim.fs.joinpath(dir, entry.name)
+
+        add_to_oldfiles(path) -- <-- ensure it shows up in recent files
+        print(vim.tbl_contains(vim.v.oldfiles, vim.fn.fnamemodify(path, ':p')))
+        vim.fn.jobstart({ pdf_open_command, path }, { detach = true })
+        return
+      end
+
+      actions.select.callback()
+    end, { buffer = args.buf, silent = true })
   end,
 })
 
@@ -1319,6 +1388,7 @@ end, o)
 
 -- Optional: Tabby's “jump mode” (single key to jump)
 map('n', '<leader><Tab>j', '<cmd>Tabby jump_to_tab<cr>', o)
+
 -- Orgmode mappings
 -- vim.api.nvim_create_autocmd('FileType', {
 --   pattern = 'org',

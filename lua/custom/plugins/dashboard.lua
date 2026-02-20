@@ -90,7 +90,7 @@ return {
           '',
           '',
           '🐸 Rijbewijs theorie (>1 hour)',
-          '🥩 4de/5de paper OR portfolio project (>1 hour)',
+          '🥩 4de/5de paper OR portfolio project OR Prepare PhD defense (>1 hour)',
           '🍬 Algorithms OR Finance course (Optional)',
           -- '🍬🍏 Godot (Optional)',
         },
