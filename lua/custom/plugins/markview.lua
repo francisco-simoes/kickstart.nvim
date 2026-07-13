@@ -2,8 +2,8 @@ return {
   'OXY2DEV/markview.nvim',
   config = function()
     require('markview').setup {
-      -- preview = { enable = false },
       preview = {
+        enable = false, -- start inactive
         enable_hybrid_mode = true,
 
         -- Previews must be enabled in the mode for hybrid to apply.

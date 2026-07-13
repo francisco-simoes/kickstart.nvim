@@ -1,3 +1,5 @@
+- [ ] Replace all keymaps with an alias which uses that plugin (search it!) which saves keymaps to be searchable like in Emacs.
+- [X] Make <C-X> work as usual
 - [X] make latex work fine
 - [X] snippets for latex from https://github.com/honza/vim-snippets/blob/master/snippets/tex.snippets
 - [ ] or Lua Snip for snippets?!! used in kickstart! If I change: remember to uninstall pynvim and remove its path from init.lua
@@ -9,7 +11,7 @@
 - [X] open pdfs with zathura.
 - [X] completion in command line without using arrows. --> just use C-p, C-n
 - [X] session management like doom
-- [ ] tab management like doom
+- [X] tab management like doom
 - [X] yig to yank inside entire file
 - [ ] <C-j> and <C-k> to navigate inside telescope instead of tab
 - [ ] which-key seing mini.ai textobjects like here: https://www.reddit.com/r/neovim/comments/1cx91gu/whichkey_and_miniai_custom_textobjects/

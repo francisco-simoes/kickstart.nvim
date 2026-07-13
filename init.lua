@@ -422,7 +422,13 @@ vim.api.nvim_create_autocmd('FileType', {
 
 -- Open terminal in buffer directory
 vim.keymap.set('n', '<leader>ot', function()
-  local dir = vim.fn.expand '%:p:h'
+  local dir
+  if vim.bo.filetype == 'oil' then
+    dir = require('oil').get_current_dir()
+  end
+  if not dir or dir == '' then
+    dir = vim.fn.expand '%:p:h'
+  end
   if dir == '' then
     dir = vim.fn.getcwd()
   end
@@ -566,7 +572,11 @@ require('lazy').setup {
 
       -- Document existing key chains
       spec = {
+        { '<leader>b', group = '[B]uffer' },
+        { '<leader>o', group = '[O]rg/[O]pen/[O]il' },
         { '<leader>s', group = '[S]earch' },
+        { '<leader>p', group = '[P]roject' },
+        { '<leader><Tab>', group = 'Tabs' },
         { '<leader>t', group = '[T]oggle' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
         { '<leader>c', group = '[C]ode operations' },
@@ -576,6 +586,7 @@ require('lazy').setup {
         { '<leader>f', group = '[F]iles' },
         { '<leader>q', group = 'Session' },
         { '<leader>S', group = '[S]nippet stuff' },
+        { '<leader>u', group = '[U]ndo Tree' },
       },
     },
   }, -- END of whick-key
@@ -638,10 +649,14 @@ require('lazy').setup {
       local actions = require 'telescope.actions'
       local job = require 'plenary.job'
       local project_actions = require 'telescope._extensions.project.actions'
-
+      local function with_desc(action, desc) -- to be able to add a telescope description (visible with C-h) to a mapping
+        action.opts = vim.tbl_extend('force', action.opts or {}, { desc = desc })
+        return action
+      end
       require('telescope').setup {
         -- You can put your default mappings / updates / etc. in here
         --  All the info you're looking for is in `:help telescope.setup()`
+        --
         --
         defaults = {
           path_display = { 'truncate' },
@@ -737,7 +752,10 @@ require('lazy').setup {
             -- user defined mappings
             mappings = {
               i = {
-                ['<CR>'] = function(prompt_bufnr)
+                ['<C-l>'] = bibtex_actions.key_append '%s', -- insert citation label. Format is determined by filetype if the user has not set it explictly
+                ['<C-e>'] = bibtex_actions.entry_append, -- insert entire citation bibtex entry
+                ['<C-c>'] = bibtex_actions.citation_append '{{author}} ({{year}}), {{title}}.', -- Insert a readable citation
+                ['<CR>'] = function(prompt_bufnr) -- Open pdf
                   local entry = action_state.get_selected_entry().id.content
                   actions.close(prompt_bufnr)
 
@@ -960,6 +978,7 @@ require('lazy').setup {
         ['<C-l>'] = { 'snippet_forward', 'fallback' },
         ['<C-h>'] = { 'snippet_backward', 'fallback' },
         ['<C-k>'] = false, -- free up C-k
+        ['<C-x>'] = { 'fallback' }, -- pass through to native vim completion submode (<C-x><C-f>, etc.)
 
         -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
         --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
@@ -1358,24 +1377,23 @@ end, { desc = 'Toggle images in Markdown (Kitty terminal)' })
 -- Tab stuff
 
 local map = vim.keymap.set
-local o = { silent = true }
 
 -- Alt-number: go to tabpage N (left-to-right)
 for i = 1, 9 do
-  map('n', '<M-' .. i .. '>', i .. 'gt', o)
+  map('n', '<M-' .. i .. '>', i .. 'gt', { silent = true })
 end
 
 -- leader-Tab "workspace" prefix (pick keys you like)
-map('n', '<leader><Tab>n', '<cmd>tabnew<cr>', o) -- new tabpage
-map('n', '<leader><Tab>d', '<cmd>tabclose<cr>', o) -- close tabpage
--- map('n', '<leader><Tab>o', '<cmd>tabonly<cr>', o) -- close others
-map('n', '<leader><Tab>]', '<cmd>tabnext<cr>', o) -- next
-map('n', '<leader><Tab>[', '<cmd>tabprevious<cr>', o) -- prev
-map('n', '<leader><Tab>;', '<cmd>tabnext #<cr>', o) -- last tab (toggle)
+map('n', '<leader><Tab>n', '<cmd>tabnew<cr>', { desc = 'Open New tab' }) -- new tabpage
+map('n', '<leader><Tab>d', '<cmd>tabclose<cr>', { desc = 'Close tab' }) -- close tabpage
+-- map('n', '<leader><Tab>o', '<cmd>tabonly<cr>', {desc = 'Close other tabs'}) -- close others
+map('n', '<leader><Tab>]', '<cmd>tabnext<cr>', { desc = 'Next tab' }) -- next
+map('n', '<leader><Tab>[', '<cmd>tabprevious<cr>', { desc = 'Previous tab' }) -- prev
+map('n', '<leader><Tab>;', '<cmd>tabnext #<cr>', { desc = 'Last tab' }) -- last tab (toggle)
 -- move current tab to left
-vim.api.nvim_set_keymap('n', '<leader><Tab>m[', ':-tabmove<CR>', { noremap = true })
+vim.api.nvim_set_keymap('n', '<leader><Tab>m[', ':-tabmove<CR>', { noremap = true, desc = 'Move tab left' })
 -- move current tab to right
-vim.api.nvim_set_keymap('n', '<leader><Tab>m]', ':+tabmove<CR>', { noremap = true })
+vim.api.nvim_set_keymap('n', '<leader><Tab>m]', ':+tabmove<CR>', { noremap = true, desc = 'Move tab right' })
 
 -- Rename current tabpage (Tabby stores & displays it)
 map('n', '<leader><Tab>r', function()
@@ -1384,10 +1402,10 @@ map('n', '<leader><Tab>r', function()
       vim.cmd('Tabby rename_tab ' .. vim.fn.fnameescape(name))
     end
   end)
-end, o)
+end, { desc = 'Rename tab' })
 
 -- Optional: Tabby's “jump mode” (single key to jump)
-map('n', '<leader><Tab>j', '<cmd>Tabby jump_to_tab<cr>', o)
+-- map('n', '<leader><Tab>j', '<cmd>Tabby jump_to_tab<cr>', o)
 
 -- Orgmode mappings
 -- vim.api.nvim_create_autocmd('FileType', {
@@ -1400,6 +1418,40 @@ map('n', '<leader><Tab>j', '<cmd>Tabby jump_to_tab<cr>', o)
 --   end,
 -- })
 -- TODO: orgmode is still not working how I want it to... so many keybindings missing
+
+-- === MISC ===
+-- Keymap for showing all keymaps even without pressing the leader key
+vim.keymap.set('n', '<leader>?', function()
+  require('which-key').show()
+end, { desc = 'Show non-led keymaps' })
+
+vim.keymap.set('n', '<Leader>tr', function()
+  vim.bo.readonly = not vim.bo.readonly
+  vim.bo.modifiable = not vim.bo.readonly
+end, { desc = '[T]oggle [R]ead-only mode' })
+
+-- Some latex extra keymaps
+vim.keymap.set('n', '<leader>dsL', function() -- TODO: it would be nice to have this as dsL, but it interferes with the surrounding plugin... Solve!
+  vim.cmd [[s/\\left\((\|\[\|{\)//e]]
+  vim.cmd [[s/\\right\()\|\]\|}\)//e]]
+end, { desc = 'Delete \\left/\\right delimiters' })
+
+-- vim.keymap.set('v', '<leader>S)', function()
+--   vim.cmd 'normal! "zc'
+--   local reg = vim.fn.getreg 'z'
+--   vim.fn.setreg('z', '\\left(' .. reg .. '\\right)')
+--   vim.cmd 'normal! "zP'
+-- end, { desc = 'Surround with \\left(…\\right)' })
+--
+
+vim.keymap.set('v', '<leader>S)', function()
+  local _, sl, sc, _ = unpack(vim.fn.getpos "'<")
+  local _, el, ec, _ = unpack(vim.fn.getpos "'>")
+  local lines = vim.api.nvim_buf_get_text(0, sl - 1, sc - 1, el - 1, ec, {})
+  lines[1] = '\\left(' .. lines[1]
+  lines[#lines] = lines[#lines] .. '\\right)'
+  vim.api.nvim_buf_set_text(0, sl - 1, sc - 1, el - 1, ec, lines)
+end, { desc = 'Surround with \\left(…\\right)' })
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
