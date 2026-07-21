@@ -645,6 +645,32 @@ require('lazy').setup {
       -- See `:help telescope` and `:help telescope.setup()`
       -- local vars to help in setup of telescope-bibtex
       local bibtex_actions = require 'telescope-bibtex.actions'
+
+      -- telescope-bibtex.utils.parse_entry (used for <C-c>/<C-l>/<C-e> citation
+      -- formatting) matches each bib field on a single physical line. Long
+      -- title/author values that BibTeX wraps across multiple lines then fail
+      -- to match at all and are silently dropped (e.g. citation prints " . (2025)"
+      -- with no author/title). Patch it to first merge wrapped continuation
+      -- lines back onto the line where their field started.
+      do
+        local bibtex_utils = require 'telescope-bibtex.utils'
+        local original_parse_entry = bibtex_utils.parse_entry
+        bibtex_utils.parse_entry = function(entry)
+          local merged = {}
+          for _, line in ipairs(entry) do
+            local starts_new_field = line:match '^%s*%w+%s*=' ~= nil
+            local is_type_line = line:sub(1, 1) == '@'
+            local is_bare_closing_brace = line:match '^%s*}%s*$' ~= nil
+            if not starts_new_field and not is_type_line and not is_bare_closing_brace and #merged > 0 then
+              merged[#merged] = merged[#merged] .. ' ' .. vim.trim(line)
+            else
+              table.insert(merged, line)
+            end
+          end
+          return original_parse_entry(merged)
+        end
+      end
+
       local action_state = require 'telescope.actions.state'
       local actions = require 'telescope.actions'
       local job = require 'plenary.job'
